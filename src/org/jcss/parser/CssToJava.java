@@ -33,9 +33,9 @@ public class CssToJava {
                 }
                 if(data.contains("{")) {
                     cssStyle = new CSSClass();
-                    cssStyle.classNames.addAll(names);
+                    cssStyle.addClassNames(names);
                     names.clear();
-                    cssStyle.classNames.add(data.substring(0, data.indexOf("{")));
+                    cssStyle.addClassName(data.substring(0, data.indexOf("{")));
                 } else if(data.contains("}")) {
                     if(cssStyle == null) {
                         continue;
@@ -58,9 +58,9 @@ public class CssToJava {
                                 complexStyle.append(":");
                             }
                             complexStyle.deleteCharAt(complexStyle.length()-1);
-                            cssStyle.styles.put(cssStyleData[0].trim(), complexStyle.toString());
+                            cssStyle.addStyle(cssStyleData[0].trim(), complexStyle.toString());
                         } else {
-                            cssStyle.styles.put(cssStyleData[0].trim(), cssStyleData[1].trim());
+                            cssStyle.addStyle(cssStyleData[0].trim(), cssStyleData[1].trim());
                         }
 
                     }

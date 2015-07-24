@@ -1,14 +1,17 @@
 package org.jcss.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public class CSSClass {
-    public Map<String, String> styles = new HashMap<>();
-    public List<String> classNames = new ArrayList<>();
+    private Map<String, String> styles = new HashMap<>();
+    private Set<String> classNames = new HashSet<>();
 
     public boolean hasStyle(String key, String value) {
         if(key == null || value == null) {
@@ -20,7 +23,18 @@ public class CSSClass {
 
         String storedValue = styles.get(key);
         return value.equals(storedValue);
+    }
 
+    public void addStyle(String property, String value) {
+        styles.put(property, value);
+    }
+
+    public void addClassName(String className) {
+        classNames.add(className);
+    }
+
+    public void addClassNames(Collection<String> newClassNames) {
+        classNames.addAll(newClassNames);
     }
 
     public String toString() {
