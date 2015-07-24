@@ -40,7 +40,7 @@ public class CssToJava {
     public static final String PROP_VAL_DELIM = ":";
     public static final String PROP_DELIM = ";";
 
-    public static List<CssClass> readCSSContents(File cssFile) throws JCssException {
+    public static List<CssClass> deSerialize(File cssFile) throws JCssException {
 
         List<CssClass> styleSheetClasses = new ArrayList<>();
         try (BufferedReader fileReader = new BufferedReader(new FileReader(cssFile))) {
