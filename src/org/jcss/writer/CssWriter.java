@@ -1,10 +1,5 @@
 package org.jcss.writer;
 
-import org.jcss.JCssException;
-
-import java.io.IOException;
-import java.io.Writer;
-
 /*
  * Copyright 2015 frict1on@github
  * <p/>
@@ -20,6 +15,12 @@ import java.io.Writer;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import org.jcss.JCssException;
+
+import java.io.IOException;
+import java.io.Writer;
+
 
 /**
  * CssWriter provides a convenient way to write CSS text conforming to CSS Syntax rules

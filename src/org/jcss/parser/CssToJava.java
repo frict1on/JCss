@@ -1,6 +1,7 @@
 package org.jcss.parser;
 
-import org.jcss.model.CSSClass;
+import org.jcss.JCssException;
+import org.jcss.model.CssClass;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,67 +33,78 @@ import java.util.List;
  */
 public class CssToJava {
 
-    public static List<CSSClass> readCSSContents(File cssFile){
+    private static final String CMNT_STRT = "/*";
+    private static final String CMNT_END = "*/";
+    public static final String CLASS_START = "{";
+    public static final String CLASS_END = "}";
+    public static final String PROP_VAL_DELIM = ":";
+    public static final String PROP_DELIM = ";";
 
-        List<CSSClass> styleSheets = new ArrayList<>();
-        try(BufferedReader fileReader = new BufferedReader(new FileReader(cssFile))) {
+    public static List<CssClass> readCSSContents(File cssFile) throws JCssException {
+
+        List<CssClass> styleSheetClasses = new ArrayList<>();
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(cssFile))) {
             String data;
-            CSSClass cssStyle = null;
+            CssClass cssStyle = null;
             List<String> names = new ArrayList<>();
-            while(( data = fileReader.readLine()) != null) {
-                System.out.println(data);
+            while ((data = fileReader.readLine()) != null) {
+                data = stripComments(data);
 
-                int cmmntStrtIdx = data.indexOf("/*");
-                int cmmtEndIdx = data.indexOf("*/");
-                if(cmmntStrtIdx != -1 && cmmtEndIdx != -1) {
-                    data = data.substring(0, cmmntStrtIdx) + data.substring(cmmtEndIdx + 2);
-                    data = data.trim();
-                }
-
-                if(data.isEmpty()) {
+                if (data.isEmpty()) {
                     continue;
                 }
-                if(data.contains("{")) {
-                    cssStyle = new CSSClass();
-                    cssStyle.addClassNames(names);
-                    names.clear();
-                    cssStyle.addClassName(data.substring(0, data.indexOf("{")));
-                } else if(data.contains("}")) {
-                    if(cssStyle == null) {
+
+                if (data.contains(CLASS_START)) {
+                    cssStyle = initCssClass(data, names);
+                } else if (data.contains(CLASS_END)) {
+                    if (cssStyle == null) {
                         continue;
                     }
-                    styleSheets.add(cssStyle);
+                    styleSheetClasses.add(cssStyle);
                     cssStyle = null;
-                } else if(cssStyle == null) {
-                    for(String s : data.split(",")) {
+                } else if (cssStyle == null) {
+                    //Group Selectors
+                    for (String s : data.split(",")) {
                         names.add(s);
                     }
                 } else {
+                    addProperties(data, cssStyle);
 
-                    String[] styles = data.split(";");
-                    for(String style : styles) {
-                        String[] cssStyleData = style.split(":", -1);
-                        if(cssStyleData.length > 2) {
-                            StringBuilder complexStyle = new StringBuilder();
-                            for(int i=1; i < cssStyleData.length; i++) {
-                                complexStyle.append(cssStyleData[i].trim());
-                                complexStyle.append(":");
-                            }
-                            complexStyle.deleteCharAt(complexStyle.length()-1);
-                            cssStyle.addStyle(cssStyleData[0].trim(), complexStyle.toString());
-                        } else {
-                            cssStyle.addStyle(cssStyleData[0].trim(), cssStyleData[1].trim());
-                        }
-
-                    }
                 }
             }
 
-            return styleSheets;
+            return styleSheetClasses;
         } catch (IOException ioe) {
+            throw new JCssException("Exception ocurred while parsing CSS", ioe);
 
         }
-        return null;
+    }
+
+    private static CssClass initCssClass(String data, List<String> names) {
+        CssClass cssStyle;
+        cssStyle = new CssClass();
+        cssStyle.addClassNames(names);
+        names.clear();
+        cssStyle.addClassName(data.substring(0, data.indexOf(CLASS_START)));
+        return cssStyle;
+    }
+
+    private static void addProperties(String data, CssClass cssStyle) {
+        String[] styles = data.split(PROP_DELIM);
+        for (String style : styles) {
+            int delimeterIdx = style.lastIndexOf(PROP_VAL_DELIM);
+            cssStyle.addPropertyValue(style.substring(0, delimeterIdx).trim(), style.substring(delimeterIdx + 1).trim());
+        }
+    }
+
+    private static String stripComments(String data) {
+        int cmmntStrtIdx = data.indexOf(CMNT_STRT);
+        int cmmtEndIdx = data.indexOf(CMNT_END);
+        if (cmmntStrtIdx != -1 && cmmtEndIdx != -1) {
+            data = data.substring(0, cmmntStrtIdx) + data.substring(cmmtEndIdx + CMNT_END.length());
+            data = data.trim();
+        }
+        return data;
     }
 }
 
