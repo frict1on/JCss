@@ -17,6 +17,7 @@ package org.jcss.writer;
  */
 
 import org.jcss.JCssException;
+import org.jcss.validators.RegexValidationUtil;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -80,6 +81,9 @@ public class CssWriter {
     }
 
     public CssWriter comment(String commentTxt) throws JCssException {
+        if(!RegexValidationUtil.isValidComment(commentTxt)) {
+            throw new JCssException("Not a well formed comment");
+        }
         try {
             writer.append("/*");
             writer.append(commentTxt);
@@ -141,6 +145,9 @@ public class CssWriter {
             return false;
         }
 
+        if(!RegexValidationUtil.isValidCssToken(key)) {
+            return false;
+        }
         return true;
     }
 
