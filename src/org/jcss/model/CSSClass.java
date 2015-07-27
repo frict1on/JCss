@@ -1,6 +1,7 @@
 package org.jcss.model;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -55,5 +56,13 @@ public class CssClass {
         }
 
         return true;
+    }
+
+    public Set<String> getClassNames(){
+        return Collections.unmodifiableSet(classNames);
+    }
+
+    public Map<String, String> getProperties() {
+        return Collections.unmodifiableMap(properties);
     }
 }

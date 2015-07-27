@@ -143,4 +143,15 @@ public class CssWriter {
 
         return true;
     }
- }
+
+    public String build() throws JCssException {
+
+        try {
+            writer.flush();
+            return writer.toString();
+        } catch (IOException e) {
+            throw new JCssException("Exception while flushing written data", e);
+        }
+
+    }
+}

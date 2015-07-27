@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import java.util.List;
  *
  * @author frict1on@github
  */
-public class CssToJava {
+public class CssToJava implements CssDeSerializer {
 
     private static final String CMNT_STRT = "/*";
     private static final String CMNT_END = "*/";
@@ -40,40 +41,28 @@ public class CssToJava {
     public static final String PROP_VAL_DELIM = ":";
     public static final String PROP_DELIM = ";";
 
+    private static volatile CssToJava instance = null;
+
+    public static CssToJava getInstance(){
+        if(instance == null) {
+            synchronized (CssToJava.class) {
+                if(instance == null) {
+                    instance = new CssToJava();
+                }
+            }
+
+        }
+
+        return instance;
+    }
+
+    private CssToJava(){};
+
     public static List<CssClass> readCSSContents(File cssFile) throws JCssException {
 
         List<CssClass> styleSheetClasses = new ArrayList<>();
         try (BufferedReader fileReader = new BufferedReader(new FileReader(cssFile))) {
-            String data;
-            CssClass cssStyle = null;
-            List<String> names = new ArrayList<>();
-            while ((data = fileReader.readLine()) != null) {
-                data = stripComments(data);
-
-                if (data.isEmpty()) {
-                    continue;
-                }
-
-                if (data.contains(CLASS_START)) {
-                    cssStyle = initCssClass(data, names);
-                } else if (data.contains(CLASS_END)) {
-                    if (cssStyle == null) {
-                        continue;
-                    }
-                    styleSheetClasses.add(cssStyle);
-                    cssStyle = null;
-                } else if (cssStyle == null) {
-                    //Group Selectors
-                    for (String s : data.split(",")) {
-                        names.add(s);
-                    }
-                } else {
-                    addProperties(data, cssStyle);
-
-                }
-            }
-
-            return styleSheetClasses;
+            return deserializeCss(styleSheetClasses, fileReader);
         } catch (IOException ioe) {
             throw new JCssException("Exception ocurred while parsing CSS", ioe);
 
@@ -105,6 +94,51 @@ public class CssToJava {
             data = data.trim();
         }
         return data;
+    }
+
+    @Override
+    public List<CssClass> deserialize(String cssData) throws JCssException {
+        List<CssClass> styleSheetClasses = new ArrayList<>();
+        try (BufferedReader cssReader = new BufferedReader(new StringReader(cssData))) {
+            return deserializeCss(styleSheetClasses, cssReader);
+        } catch (IOException ioe) {
+            throw new JCssException("Exception ocurred while parsing CSS", ioe);
+
+        }
+
+    }
+
+    private static List<CssClass> deserializeCss(List<CssClass> styleSheetClasses, BufferedReader fileReader) throws IOException {
+        String data;
+        CssClass cssStyle = null;
+        List<String> names = new ArrayList<>();
+        while ((data = fileReader.readLine()) != null) {
+            data = stripComments(data);
+
+            if (data.isEmpty()) {
+                continue;
+            }
+
+            if (data.contains(CLASS_START)) {
+                cssStyle = initCssClass(data, names);
+            } else if (data.contains(CLASS_END)) {
+                if (cssStyle == null) {
+                    continue;
+                }
+                styleSheetClasses.add(cssStyle);
+                cssStyle = null;
+            } else if (cssStyle == null) {
+                //Group Selectors
+                for (String s : data.split(",")) {
+                    names.add(s);
+                }
+            } else {
+                addProperties(data, cssStyle);
+
+            }
+        }
+
+        return styleSheetClasses;
     }
 }
 
