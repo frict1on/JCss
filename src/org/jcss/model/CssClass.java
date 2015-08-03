@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /*
  * Copyright 2015 frict1on@github
@@ -30,8 +32,8 @@ import java.util.Set;
  * @author frict1on@github
  */
 public class CssClass {
-    private Map<String, String> properties = new HashMap<>();
-    private Set<String> classNames = new HashSet<>();
+    private Map<String, String> properties = new LinkedHashMap<>();
+    private Set<String> selectors = new HashSet<>();
 
     public boolean hasPropertyValue(String key, String value) {
         if(key == null || value == null) {
@@ -49,16 +51,16 @@ public class CssClass {
         properties.put(property, value);
     }
 
-    public void addClassName(String className) {
-        classNames.add(className);
+    public void addSelector(String className) {
+        selectors.add(className);
     }
 
-    public void addClassNames(Collection<String> newClassNames) {
-        classNames.addAll(newClassNames);
+    public void addSelectors(Collection<String> newClassNames) {
+        selectors.addAll(newClassNames);
     }
 
     public String toString() {
-        return classNames.toString();
+        return selectors.toString();
     }
 
     public boolean equals (Object o) {
@@ -79,8 +81,8 @@ public class CssClass {
         return true;
     }
 
-    public Set<String> getClassNames(){
-        return Collections.unmodifiableSet(classNames);
+    public Set<String> getSelectors(){
+        return Collections.unmodifiableSet(selectors);
     }
 
     public Map<String, String> getProperties() {

@@ -54,7 +54,7 @@ public class JavaToCss implements CssSerializer {
         StringWriter stringWriter = new StringWriter();
         CssWriter cssBuilder = new CssWriter(stringWriter);
         for(CssClass css : styleClass) {
-            Set<String> classNames = css.getClassNames();
+            Set<String> classNames = css.getSelectors();
             StringBuilder classNameBuilder = new StringBuilder();
             for(String className : classNames) {
                 classNameBuilder.append(className + ",");

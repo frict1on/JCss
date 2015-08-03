@@ -72,9 +72,9 @@ public class CssToJava implements CssDeSerializer {
     private static CssClass initCssClass(String data, List<String> names) {
         CssClass cssStyle;
         cssStyle = new CssClass();
-        cssStyle.addClassNames(names);
+        cssStyle.addSelectors(names);
         names.clear();
-        cssStyle.addClassName(data.substring(0, data.indexOf(CLASS_START)));
+        cssStyle.addSelector(data.substring(0, data.indexOf(CLASS_START)));
         return cssStyle;
     }
 
